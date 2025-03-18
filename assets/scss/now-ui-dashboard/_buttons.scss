@@ -1,3 +1,8 @@
+@use "../now-ui-dashboard/variables" as *;
+@use "../now-ui-dashboard/mixins/buttons" as *;
+@use "variables" as *;
+@use "mixins/buttons" as *;
+@use "mixins" as *;
 .btn,
 .navbar .navbar-nav > a.btn{
     border-width: $border-thick;

@@ -1,3 +1,5 @@
+@use "variables" as *;
+@use "mixins/vendor-prefixes" as vp;
 body{
     color: $black-color;
     font-size: $font-size-base;
@@ -21,21 +23,21 @@ body{
 .tag,
 .tag [data-role="remove"],
 .animation-transition-general{
-    @include transition($general-transition-time, $transition-ease);
+    @include vp.transition($general-transition-time, $transition-ease);
 }
 
 //transition for dropdown caret
 .dropdown-toggle:after,
 .bootstrap-switch-label:before,
 .caret{
-    @include transition($fast-transition-time, $transition-ease);
+    @include vp.transition($fast-transition-time, $transition-ease);
 }
 
 .dropdown-toggle[aria-expanded="true"]:after,
 a[data-toggle="collapse"][aria-expanded="true"] .caret,
 .card-collapse .card a[data-toggle="collapse"][aria-expanded="true"] i,
 .card-collapse .card a[data-toggle="collapse"].expanded i{
-    @include rotate-180();
+    @include vp.rotate-180();
 }
 
 .button-bar{

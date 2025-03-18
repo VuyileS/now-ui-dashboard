@@ -1,9 +1,15 @@
 //Components
-@import "mixins/buttons";
-@import "mixins/vendor-prefixes";
-@import "mixins/inputs";
-@import "mixins/page-header";
-@import "mixins/dropdown";
-@import "mixins/sidebar";
-@import "mixins/cards";
-@import "mixins/transparency";
+@forward "mixins/buttons";
+@forward "mixins/vendor-prefixes";
+@forward "mixins/inputs";
+@forward "mixins/page-header";
+@forward "mixins/dropdown";
+@forward "mixins/sidebar";
+@forward "mixins/cards";
+@forward "mixins/transparency";
+@forward "mixins/vendor-prefixes";
+@use "mixins/animations";
+// @mixin opacity($opacity) {
+//     opacity: $opacity;
+//   }
+  

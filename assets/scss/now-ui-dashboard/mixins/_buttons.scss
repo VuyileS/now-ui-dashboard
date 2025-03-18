@@ -1,6 +1,11 @@
 // Mixin for generating new styles
+@use "../variables" as *;
+@use "../mixins/transparency" as *;
+@use "sass:color";
 @mixin btn-styles($btn-color, $btn-states-color) {
     background-color: $btn-color;
+
+    color: $white-color;
 
     &:hover,
     &:focus,
@@ -122,7 +127,9 @@
         }
 
     } @else {
-        color: $white-color;
+        & {
+            color: $white-color;  // ✅ Wrapped inside `& {}` to follow Sass rules
+        }
     }
 
     &.btn-link{

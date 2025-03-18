@@ -1,0 +1,21 @@
+@mixin bar-animation($background) {
+    background: $background;
+    transition: all 0.3s ease-in-out;
+}
+
+@mixin topbar-x-rotation {
+    transform: rotate(45deg);
+  }
+  
+@mixin topbar-back-rotation {
+transform: rotate(0deg);
+}
+
+@mixin bottombar-x-rotation {
+transform: rotate(-45deg);
+}
+
+@mixin bottombar-back-rotation {
+transform: rotate(0deg);
+}
+  
