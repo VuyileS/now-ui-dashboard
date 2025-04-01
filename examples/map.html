@@ -1,54 +1,83 @@
-<!--
-
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
-
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="utf-8" />
-  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <title>
-    Now UI Dashboard by Creative Tim
-  </title>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
-  <!--     Fonts and icons     -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-  <!-- CSS Files -->
+  <title>Maps | Now UI Dashboard</title>
+  <meta content='width=device-width, initial-scale=1.0, user-scalable=0' name='viewport' />
   <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
-  <!-- CSS Just for demo purpose, don't include it in your project -->
-  <link href="../assets/demo/demo.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" crossorigin="anonymous">
+  <style>
+    #mapLegend {
+      background: #f9f9f9;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      display: inline-flex;
+    }
+  
+    .legend-icon {
+      width: 22px;
+      height: 36px;
+      margin-right: 8px;
+    }
+  
+    .legend-label {
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+    #provinceModal .modal-content {
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    #modalProvinceContent ul {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    #modalProvinceContent li {
+      background: #f7f7f7;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #modalProvinceContent li span {
+      font-size: 14px;
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .gm-style-iw ul {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .gm-style-iw li {
+      background: #f7f7f7;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>  
 </head>
 
-<body class="">
-  <div class="wrapper ">
+<body>
+  <div class="wrapper">
     <div class="sidebar" data-color="orange">
-      <!--
-        Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
-    -->
       <div class="logo">
-        <a href="http://www.creative-tim.com" class="simple-text logo-mini">
-          CT
-        </a>
-        <a href="http://www.creative-tim.com" class="simple-text logo-normal">
-          Creative Tim
-        </a>
+        <a href="#" class="simple-text logo-normal">HF Dashboard</a>
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
@@ -58,182 +87,381 @@
               <p>Dashboard</p>
             </a>
           </li>
-          <li>
-            <a href="./icons.html">
-              <i class="now-ui-icons education_atom"></i>
-              <p>Icons</p>
-            </a>
-          </li>
-          <li class="active ">
+          <li class="active">
             <a href="./map.html">
               <i class="now-ui-icons location_map-big"></i>
               <p>Maps</p>
             </a>
           </li>
-          <li>
-            <a href="./notifications.html">
-              <i class="now-ui-icons ui-1_bell-53"></i>
-              <p>Notifications</p>
-            </a>
-          </li>
-          <li>
-            <a href="./user.html">
-              <i class="now-ui-icons users_single-02"></i>
-              <p>User Profile</p>
-            </a>
-          </li>
-          <li>
-            <a href="./tables.html">
-              <i class="now-ui-icons design_bullet-list-67"></i>
-              <p>Table List</p>
-            </a>
-          </li>
-          <li>
-            <a href="./typography.html">
-              <i class="now-ui-icons text_caps-small"></i>
-              <p>Typography</p>
-            </a>
-          </li>
-          <li class="active-pro">
-            <a href="./upgrade.html">
-              <i class="now-ui-icons arrows-1_cloud-download-93"></i>
-              <p>Upgrade to PRO</p>
-            </a>
-          </li>
         </ul>
-      </div>
+      </div>      
     </div>
+
     <div class="main-panel" id="main-panel">
-      <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-transparent  bg-primary  navbar-absolute">
+      <nav class="navbar navbar-expand-lg navbar-transparent bg-primary navbar-absolute">
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            <div class="navbar-toggle">
-              <button type="button" class="navbar-toggler">
-                <span class="navbar-toggler-bar bar1"></span>
-                <span class="navbar-toggler-bar bar2"></span>
-                <span class="navbar-toggler-bar bar3"></span>
-              </button>
-            </div>
-            <a class="navbar-brand" href="#pablo">Maps</a>
-          </div>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-bar navbar-kebab"></span>
-            <span class="navbar-toggler-bar navbar-kebab"></span>
-            <span class="navbar-toggler-bar navbar-kebab"></span>
-          </button>
-          <div class="collapse navbar-collapse justify-content-end" id="navigation">
-            <form>
-              <div class="input-group no-border">
-                <input type="text" value="" class="form-control" placeholder="Search...">
-                <div class="input-group-append">
-                  <div class="input-group-text">
-                    <i class="now-ui-icons ui-1_zoom-bold"></i>
-                  </div>
-                </div>
-              </div>
-            </form>
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link" href="#pablo">
-                  <i class="now-ui-icons media-2_sound-wave"></i>
-                  <p>
-                    <span class="d-lg-none d-md-block">Stats</span>
-                  </p>
-                </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="now-ui-icons location_world"></i>
-                  <p>
-                    <span class="d-lg-none d-md-block">Some Actions</span>
-                  </p>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                  <a class="dropdown-item" href="#">Action</a>
-                  <a class="dropdown-item" href="#">Another action</a>
-                  <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#pablo">
-                  <i class="now-ui-icons users_single-02"></i>
-                  <p>
-                    <span class="d-lg-none d-md-block">Account</span>
-                  </p>
-                </a>
-              </li>
-            </ul>
+            <a class="navbar-brand" href="#">Maps</a>
           </div>
         </div>
       </nav>
-      <!-- End Navbar -->
-      <div class="panel-header panel-header-sm">
-      </div>
+
+      <div class="panel-header panel-header-sm"></div>
+
       <div class="content">
         <div class="row">
           <div class="col-md-12">
-            <div class="card ">
-              <div class="card-header ">
-                Google Maps
-              </div>
-              <div class="card-body ">
-                <div id="map" class="map"></div>
+            <div class="card">
+              <div class="card-header">Top Diagnosed Conditions in Your Area</div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="addressInput">Enter Your Address</label>
+                  <input id="addressInput" class="form-control" type="text" placeholder="Start typing your address..." />
+                </div>                
+                <div id="map" style="height: 600px;"></div>
+                <!-- Legend -->
+                  <div class="d-flex align-items-center mb-3" id="mapLegend">
+                    <span class="mr-3"><img src="http://maps.google.com/mapfiles/ms/icons/red-dot.png"> Provinces</span>
+                    <span class="mr-3"><img src="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"> Dis-Chem Clinics</span>
+                    <span><img src="http://maps.google.com/mapfiles/ms/icons/green-dot.png"> Your Location</span>
+                  </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
       <footer class="footer">
-        <div class=" container-fluid ">
-          <nav>
-            <ul>
-              <li>
-                <a href="https://www.creative-tim.com">
-                  Creative Tim
-                </a>
-              </li>
-              <li>
-                <a href="http://presentation.creative-tim.com">
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a href="http://blog.creative-tim.com">
-                  Blog
-                </a>
-              </li>
-            </ul>
-          </nav>
+        <div class="container-fluid">
           <div class="copyright" id="copyright">
-            &copy; <script>
-              document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
-            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
+            &copy; <script>document.write(new Date().getFullYear())</script>, Designed by Invision. Coded by Creative Tim.
           </div>
         </div>
       </footer>
     </div>
   </div>
-  <!--   Core JS Files   -->
+
+  <!-- Province ICD10 Modal -->
+  <div class="modal fade" id="provinceModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content border-0">
+        <div class="modal-header bg-info text-white rounded-top">
+          <h5 class="modal-title font-weight-bold" id="modalProvinceTitle">Province ICD10 Summary</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body p-4" id="modalProvinceContent" style="max-height: 70vh; overflow-y: auto;">
+          <div class="text-center text-muted">Loading ICD10 data...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Add a loading spinner and a PDF button in your modal -->
+<div class="modal fade" id="recommendationModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Clinic Product Recommendations</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="loadingSpinner" class="text-center my-4" style="display: none;">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <p class="mt-2">Fetching recommendations...</p>
+        </div>
+        <div id="recommendationContent" class="px-2" style="max-height: 60vh; overflow-y: auto;"></div>
+      </div>      
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="savePdfBtn">Save as PDF</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
   <script src="../assets/js/core/jquery.min.js"></script>
-  <script src="../assets/js/core/popper.min.js"></script>
   <script src="../assets/js/core/bootstrap.min.js"></script>
   <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-  <!--  Google Maps Plugin    -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
-  <!-- Chart JS -->
-  <script src="../assets/js/plugins/chartjs.min.js"></script>
-  <!--  Notifications Plugin    -->
-  <script src="../assets/js/plugins/bootstrap-notify.js"></script>
-  <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
-  <script src="../assets/demo/demo.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <script>
-    $(document).ready(function() {
-      // Javascript method's body can be found in assets/js/demos.js
-      demo.initGoogleMaps();
+    let map;
+    let clinicMarkers = [];
+  
+    fetch("http://127.0.0.1:5000/get-map-key")
+      .then(res => res.json())
+      .then(data => {
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places&callback=initMap`;
+        script.async = true;
+        document.head.appendChild(script);
+      })
+      .catch(err => console.error("Failed to load Google Maps API:", err));
+  
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 6,
+        center: { lat: -28.4793, lng: 24.6727 }
+      });
+  
+      fetch("http://127.0.0.1:5000/get-province-icd10")
+  .then(res => res.json())
+  .then(provinces => {
+    if (!Array.isArray(provinces)) {
+      console.error("Expected an array, got:", provinces);
+      return;
+    }
+
+    // Transform flat array into grouped provinces
+    provinces.forEach(province => {
+    const marker = new google.maps.Marker({
+      position: { lat: province.lat, lng: province.lng },
+      map: map,
+      title: province.province,
+      icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
     });
+
+    const icd10List = Object.entries(province.top_icd10_spikes)
+      .map(([desc, spikeInfo]) => {
+        const percentMatch = spikeInfo.match(/([\d.]+)%/);
+        const countMatch = spikeInfo.match(/\((\d+) in 7d\)/);
+
+        const percent = percentMatch ? parseFloat(percentMatch[1]) : 0;
+        const count = countMatch ? parseInt(countMatch[1]) : 0;
+
+        let badgeClass = "badge-primary";
+        let icon = "";
+        let textColor = "white";
+
+        if (percent >= 100) {
+          badgeClass = "badge-danger";
+          icon = '<i class="fas fa-arrow-up text-danger ml-2"></i>';
+        } else if (percent >= 50) {
+          badgeClass = "badge-warning";
+          icon = '<i class="fas fa-arrow-up text-warning ml-2"></i>';
+          textColor = "black"; // better contrast on yellow
+        }
+
+        return `
+          <li class="mb-2">
+            <strong>${desc}</strong><br/>
+            <span class="badge badge-pill ${badgeClass}" style="color: ${textColor}">+${percent}%</span>
+            <span class="badge badge-light">${count} cases this week</span>
+            ${icon}
+          </li>
+        `;
+      })
+      .join("");
+
+    marker.addListener("click", () => {
+      map.setZoom(8);
+      map.panTo({ lat: province.lat, lng: province.lng });
+
+      document.getElementById("modalProvinceTitle").innerText = `${province.province} - Spiking Diagnoses`;
+      document.getElementById("modalProvinceContent").innerHTML = `<ul>${icd10List}</ul>`;
+      $("#provinceModal").modal("show");
+
+      loadClinicsForProvince(province.province, map);
+    });
+  });
+
+    setupAddressAutocomplete();
+  })
+  .catch(error => console.error("Error loading province ICD10 markers:", error));
+    }
+    let userCircle = null;
+
+    function setupAddressAutocomplete() {
+      const input = document.getElementById("addressInput");
+      const autocomplete = new google.maps.places.Autocomplete(input);
+      autocomplete.setFields(["geometry"]);
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+          alert("No geometry data found for selected address.");
+          return;
+        }
+
+        const location = place.geometry.location;
+        map.setCenter(location);
+        map.setZoom(13);
+
+        if (userCircle) userCircle.setMap(null); // Remove previous circle
+
+        userCircle = new google.maps.Circle({
+          strokeColor: "#87CEFA",
+          strokeOpacity: 0.6,
+          strokeWeight: 2,
+          fillColor: "#87CEFA",
+          fillOpacity: 0.3,
+          map: map,
+          center: location,
+          radius: 5000 // radius in meters (5km)
+        });
+
+        // Optional: Add marker at user's location
+        new google.maps.Marker({
+          position: location,
+          map: map,
+          title: "Your location",
+          icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+        });
+      });
+    }
+  
+    // ✅ Load clinics for selected province
+    function loadClinicsForProvince(provinceName, map) {
+      // Remove existing clinic markers
+      clinicMarkers.forEach(marker => marker.setMap(null));
+      clinicMarkers = [];
+  
+      fetch(`http://127.0.0.1:5000/get-clinics-by-province?province=${encodeURIComponent(provinceName)}`)
+        .then(res => res.json())
+        .then(clinics => {
+          clinics.forEach(clinic => {
+            const marker = new google.maps.Marker({
+              position: { lat: clinic.lat, lng: clinic.lng },
+              map: map,
+              title: clinic.clinic_name,
+              icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+            });
+  
+            const icd10List = Object.entries(clinic.top_icd10)
+              .map(([desc, info]) => {
+                const percentMatch = info.match(/([\d.]+)%/);
+                const countMatch = info.match(/\((\d+) in 7d\)/);
+
+                const percent = percentMatch ? parseFloat(percentMatch[1]) : 0;
+                const count = countMatch ? parseInt(countMatch[1]) : 0;
+
+                let badgeClass = "badge-primary";
+                let icon = "";
+                let textColor = "white";
+
+                if (percent >= 100) {
+                  badgeClass = "badge-danger";
+                  icon = '<i class="fas fa-arrow-up text-danger ml-2"></i>';
+                } else if (percent >= 50) {
+                  badgeClass = "badge-warning";
+                  icon = '<i class="fas fa-arrow-up text-warning ml-2"></i>';
+                  textColor = "black";
+                }
+
+                return `
+                  <li class="mb-2">
+                    <strong>${desc}</strong><br/>
+                    <span class="badge badge-pill ${badgeClass}" style="color: ${textColor}">+${percent}%</span>
+                    <span class="badge badge-light">${count} cases this week</span>
+                    ${icon}
+                  </li>
+                `;
+              })
+              .join("");
+
+  
+              const infoWindow = new google.maps.InfoWindow({
+                content: `
+                <div style="max-height:300px; overflow-y:auto;">
+                  <h6 class="font-weight-bold">${clinic.clinic_name}</h6>
+                  <p class="text-muted mb-2">${clinic.city}</p>
+                  <ul style="padding-left: 0; list-style: none;">${icd10List}</ul>
+                  <button class="btn btn-sm btn-info mt-2" onclick='fetchRecommendedProducts(${JSON.stringify(Object.keys(clinic.top_icd10))}, "${clinic.clinic_name.replace(/"/g, '&quot;')}")'>
+                    <i class="fas fa-pills"></i> See Products
+                  </button>
+                </div>
+              `
+              });
+  
+            marker.addListener("click", () => infoWindow.open(map, marker));
+  
+            clinicMarkers.push(marker);
+          });
+        })
+        .catch(error => console.error("Error loading clinic markers:", error));
+    }
   </script>
-</body>
+  <script>
+    function fetchRecommendedProducts(icd10List, clinicName) {
+      const modalTitle = document.querySelector("#recommendationModal .modal-title");
+      const spinner = document.getElementById("loadingSpinner");
+      const content = document.getElementById("recommendationContent");
+  
+      // Update modal title
+      modalTitle.innerText = `${clinicName} Product Recommendations`;
+  
+      // Clear content & show spinner
+      spinner.style.display = "block";
+      content.innerHTML = "";
+  
+      // ✅ Show modal immediately so spinner is visible
+      $("#recommendationModal").modal("show");
+  
+      // Fetch recommendations
+      fetch("http://127.0.0.1:5001/get-product-suggestions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ icd10: icd10List })
+      })
+        .then(res => res.json())
+        .then(data => {
+          let html = "";
+  
+          if (data.recommendations) {
+            html += `<p><strong>AI Recommendation Summary:</strong></p><div style="white-space: pre-line;">${data.recommendations}</div>`;
+          }
+  
+          if (data.products && data.products.length > 0) {
+            html += `<hr><p><strong>Recommended Products:</strong></p>`;
+            data.products.forEach(p => {
+              html += `
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <span class="badge badge-info mb-2">${p.icd10}</span>
+                    <h6 class="card-title mb-1">
+                      <a href="${p.url}" target="_blank">${p.name}</a>
+                    </h6>
+                    <p class="card-text text-muted">${p.price}</p>
+                  </div>
+                </div>
+              `;
+            });
+          } else {
+            html += `<p>No product matches found for the selected diagnoses.</p>`;
+          }
+  
+          content.innerHTML = html;
+          spinner.style.display = "none";
+        })
+        .catch(err => {
+          spinner.style.display = "none";
+          alert("Failed to load recommendations.");
+          console.error("Error fetching recommended products:", err);
+        });
+    }
+  
+    // ✅ PDF export
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("savePdfBtn").addEventListener("click", () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const content = document.getElementById("recommendationContent").innerText;
+        const lines = doc.splitTextToSize(content, 180);
+        doc.text(lines, 15, 20);
+        doc.save("clinic_product_recommendations.pdf");
+      });
+    });
+  </script>  
+  </body>
 
 </html>

@@ -1,1 +1,6 @@
 node_modules
+dischem_metadata.json
+dischem_products.json
+outbreak_data.json
+outbreak_news.json
+.env

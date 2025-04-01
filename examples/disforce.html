@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Symptom Chat | HF Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" crossorigin="anonymous">
+  <style>
+    .chatbox { max-height: 500px; overflow-y: auto; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+    .chat-msg { margin-bottom: 10px; }
+    .chat-msg.user { text-align: right; }
+    .chat-msg.ai { text-align: left; }
+    .chat-msg .bubble { display: inline-block; padding: 10px 15px; border-radius: 20px; }
+    .chat-msg.user .bubble { background: #ff8c00; color: white; }
+    .chat-msg.ai .bubble { background: #e4e6eb; color: black; }
+    .chat-options button { margin: 5px; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="sidebar" data-color="orange">
+      <div class="logo">
+        <a href="./dashboard.html" class="simple-text logo-normal">HF Dashboard</a>
+      </div>
+      <div class="sidebar-wrapper" id="sidebar-wrapper">
+        <ul class="nav">
+          <li><a href="./dashboard.html"><i class="now-ui-icons design_app"></i><p>Dashboard</p></a></li>
+          <li class="active"><a href="./disforce.html"><i class="now-ui-icons ui-2_chat-round"></i><p>Dis-Force Chat</p></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="main-panel" id="main-panel">
+      <div class="panel-header panel-header-sm"></div>
+      <div class="content pt-5">
+        <div class="container mt-4">
+          <h3 class="mb-4">Symptom Avatar Assistant</h3>
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="chatbox" id="chatbox"></div>
+                  <div class="chat-options mt-3" id="chatOptions"></div>
+                </div>
+                <div class="col-md-4 text-center">
+                  <svg id="svgAvatar" width="150" height="300" viewBox="0 0 150 300">
+                    <!-- Head -->
+                    <circle cx="75" cy="40" r="20" fill="#00CED1" id="head" />
+
+                    <!-- Body -->
+                    <rect x="60" y="60" width="30" height="80" fill="#00CED1" rx="10" id="body" />
+
+                    <!-- Arms -->
+                    <rect x="40" y="60" width="15" height="70" fill="#00CED1" id="left-arm" />
+                    <rect x="95" y="60" width="15" height="70" fill="#00CED1" id="right-arm" />
+
+                    <!-- Legs -->
+                    <rect x="60" y="145" width="10" height="70" fill="#00CED1" id="left-leg" />
+                    <rect x="80" y="145" width="10" height="70" fill="#00CED1" id="right-leg" />
+
+                    <!-- Skirt -->
+                    <polygon id="skirt" points="60,140 90,140 75,170" fill="#00CED1" style="display: none;" />
+
+                    <!-- Glasses -->
+                    <rect id="glasses" x="60" y="30" width="30" height="10" fill="#00CED1" rx="3" ry="3" style="display: none;" />
+
+                    <!-- Pain spots layer -->
+                    <g id="painSpots"></g>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const chatOptions = document.getElementById("chatOptions");
+    const painSpots = document.getElementById("painSpots");
+
+    function addMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.className = `chat-msg ${sender}`;
+      msg.innerHTML = `<div class="bubble">${text}</div>`;
+      chatbox.appendChild(msg);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function startChat() {
+      addMessage("ai", "Hi there! 👋 Before we begin, let's setup your avatar, can you tell me your gender?");
+      showGenderOptions();
+    }
+
+    function showGenderOptions() {
+      const genders = ["Male", "Female", "Other"];
+      chatOptions.innerHTML = "";
+      genders.forEach(gender => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-outline-primary btn-sm";
+        btn.innerText = gender;
+        btn.onclick = () => handleGenderSelection(gender);
+        chatOptions.appendChild(btn);
+      });
+    }
+
+    function handleGenderSelection(gender) {
+      addMessage("user", gender);
+      chatOptions.innerHTML = "";
+      updateAvatarGender(gender);
+      setTimeout(() => {
+        addMessage("ai", "Thanks! What is your age group?");
+        showAgeOptions();
+      }, 1000);
+    }
+
+    function showAgeOptions() {
+      const ages = ["0-12", "13-19", "20-35", "36-60", "60+"];
+      chatOptions.innerHTML = "";
+      ages.forEach(age => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-outline-primary btn-sm";
+        btn.innerText = age;
+        btn.onclick = () => handleAgeSelection(age);
+        chatOptions.appendChild(btn);
+      });
+    }
+
+    function handleAgeSelection(age) {
+      addMessage("user", age);
+      chatOptions.innerHTML = "";
+      updateAvatarAge(age);
+      setTimeout(() => {
+        addMessage("ai", "Great. Can you tell me your address or suburb?");
+        showAddressInput();
+      }, 1000);
+    }
+
+    function showAddressInput() {
+      chatOptions.innerHTML = `
+        <input type="text" class="form-control mb-2" id="addressInput" placeholder="Enter your suburb..." />
+        <button class="btn btn-primary btn-sm" onclick="handleAddress()">Submit</button>
+      `;
+    }
+
+    function handleAddress() {
+      const address = document.getElementById("addressInput").value;
+      if (!address) return;
+      addMessage("user", address);
+      chatOptions.innerHTML = "";
+      setTimeout(() => {
+        addMessage("ai", "Thank you. Now, what symptoms are you experiencing?");
+        showSymptomOptions();
+      }, 1000);
+    }
+
+    function showSymptomOptions() {
+      const symptoms = ["Fever", "Cough", "Headache", "Fatigue", "Stomach pain"];
+      chatOptions.innerHTML = "";
+      symptoms.forEach(symptom => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-outline-primary btn-sm";
+        btn.innerText = symptom;
+        btn.onclick = () => handleSymptomClick(symptom);
+        chatOptions.appendChild(btn);
+      });
+    }
+
+    function handleSymptomClick(symptom) {
+      addMessage("user", symptom);
+      chatOptions.innerHTML = "";
+      updateAvatarPain(symptom);
+      setTimeout(() => {
+        addMessage("ai", `Got it! You can tell me more or click below when you're ready to chat.`);
+      }, 1000);
+    }
+
+    function updateAvatarPain(symptom) {
+      const coords = {
+        "Headache": { cx: 75, cy: 40 },
+        "Cough": { cx: 75, cy: 100 },
+        "Fever": { cx: 75, cy: 50 },
+        "Fatigue": { cx: 75, cy: 180 },
+        "Stomach pain": { cx: 75, cy: 130 }
+      }[symptom];
+
+      if (coords) {
+        const spot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        spot.setAttribute("cx", coords.cx);
+        spot.setAttribute("cy", coords.cy);
+        spot.setAttribute("r", 10);
+        spot.setAttribute("fill", "red");
+        spot.setAttribute("opacity", 0.6);
+        painSpots.appendChild(spot);
+      }
+    }
+
+    function updateAvatarGender(gender) {
+      document.getElementById("skirt").style.display = (gender === "Female") ? "block" : "none";
+    }
+
+    function updateAvatarAge(age) {
+      document.getElementById("glasses").style.display = (age === "60+") ? "block" : "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", startChat);
+  </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Medication Timeline | Now UI Dashboard</title>
+  <meta content='width=device-width, initial-scale=1.0, user-scalable=0' name='viewport' />
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
+
+  <!-- ✅ Highcharts Gantt -->
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/gantt/modules/gantt.js"></script> 
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+  <style>
+      #medGanttChart {
+          width: 100%;
+          height: 600px;  /* ✅ Fixed height */
+          display: block;
+      }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="sidebar" data-color="orange">
+      <div class="logo">
+        <a href="./dashboard.html" class="simple-text logo-normal">HF Dashboard</a>
+      </div>
+      <div class="sidebar-wrapper">
+        <ul class="nav">
+          <li><a href="./dashboard.html"><i class="now-ui-icons design_app"></i><p>Dashboard</p></a></li>
+          <li class="active"><a href="./medication_timeline.html"><i class="now-ui-icons health_ambulance"></i><p>Medication Timeline</p></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="main-panel">
+      <nav class="navbar navbar-expand-lg navbar-transparent bg-primary navbar-absolute">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <a class="navbar-brand" href="#">Medication Timeline</a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-category">Upcoming Refills</h5>
+                <h4 class="card-title">Refill Schedule</h4>
+              </div>
+              <div class="card-body">
+                <div id="medGanttChart"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
+  </div>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      // ✅ Ensure Highcharts Gantt is loaded
+      if (typeof Highcharts.ganttChart !== "function") {
+          console.error("🚨 Highcharts Gantt module is NOT loaded!");
+          return;
+      }
+
+      // ✅ Fetch Data from Server
+      fetch('http://127.0.0.1:5000/get-medication-refills')
+          .then(response => response.json())
+          .then(data => {
+              if (!data || data.length === 0) {
+                  console.error("🚨 No Data Available for Gantt Chart!");
+                  return;
+              }
+
+              console.log("✅ Data received:", data);
+
+              // ✅ Count total prescriptions per medication
+              let medicationCounts = {};
+              data.forEach(item => {
+                  const medicationName = item.MEDICATION || "Unknown";
+                  medicationCounts[medicationName] = (medicationCounts[medicationName] || 0) + 1;
+              });
+
+              // ✅ Convert Data for Gantt Chart
+              const ganttData = data.map((item, index) => ({
+                  name: `${item.MEDICATION} (${medicationCounts[item.MEDICATION]})`, // Show count next to name
+                  start: new Date(item.CREATED_AT).getTime(),
+                  end: new Date(item.REFILL_DATE).getTime(),
+                  y: index,
+                  description: `
+                      <b>Dosage:</b> ${item.DOSAGE} mg <br>
+                      <b>Times per Day:</b> ${item.DOSAGE_TIMES_PER_DAY} <br>
+                      <b>Application:</b> ${item.APPLICATION_FORM} <br>
+                      <b>Refill Date:</b> ${new Date(item.REFILL_DATE).toLocaleDateString()}
+                  `
+              }));
+
+              Highcharts.ganttChart('medGanttChart', {
+                  chart: { 
+                      type: 'gantt', 
+                      height: 600,  // ✅ Keeps chart height fixed 
+                      scrollablePlotArea: { minHeight: 500, minWidth: 1000 }
+                  },
+                  title: { text: 'Medication Refill Schedule' },
+                  xAxis: { 
+                      type: 'datetime',
+                      tickInterval: 7 * 24 * 3600 * 1000, // ✅ Weekly intervals
+                      labels: {
+                          formatter: function () {
+                              return Highcharts.dateFormat('%b %d, %Y', this.value); // ✅ Displays "Mar 18, 2025"
+                          }
+                      }
+                  },
+                  yAxis: {
+                      type: 'category',
+                      categories: ganttData.map(item => item.name),
+                      title: { text: 'Medications' },
+                      max: 10,  // ✅ Show only 10 rows at a time
+                      scrollbar: { enabled: true }  // ✅ Enables vertical scrolling
+                  },
+                  tooltip: {
+                      pointFormat: '{point.description}'
+                  },
+                  series: [{
+                      name: "Medications",
+                      data: ganttData
+                  }]
+              });
+          })
+          .catch(error => console.error("Fetch error:", error));
+  });
+  </script>
+
+</body>
+</html>
