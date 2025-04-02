@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Referrals | HF Dashboard</title>
+  <meta content='width=device-width, initial-scale=1.0, user-scalable=0' name='viewport' />
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
+
+  <!-- Highcharts Library -->
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+  <script src="https://code.highcharts.com/modules/sunburst.js"></script> <!-- ✅ Ensure Sunburst module is included -->
+
+  <!-- jQuery and Bootstrap scripts (Ensure Bootstrap is loaded for the modal) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>      
+
+  <style>
+      #referralChart {
+          width: 100%;
+          height: 500px;
+          display: block;
+      }
+  </style>
+  <style>
+    /* Highcharts container */
+    #referralChart {
+        width: 100%;
+        height: 500px;
+        display: block;
+    }
+
+    /* ✅ Analyse AI Button Styling */
+    .analyseAI-btn {
+        font-weight: 600;
+        border-radius: 20px; /* Softer rounded edges */
+        padding: 5px 12px;
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        border: 1px solid #007bff; /* Primary blue border */
+        color: #007bff; /* Text color */
+        background: transparent; /* Transparent background */
+    }
+
+    .analyseAI-btn i {
+        font-size: 14px;
+    }
+
+    .analyseAI-btn:hover {
+        background-color: #007bff; /* Primary blue background */
+        color: white;
+    }
+</style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="sidebar" data-color="orange">
+      <div class="logo">
+        <a href="./dashboard.html" class="simple-text logo-normal">HF Dashboard</a>
+      </div>
+      <div class="sidebar-wrapper" id="sidebar-wrapper">
+        <ul class="nav">
+          <li><a href="./dashboard.html"><i class="now-ui-icons design_app"></i><p>Dashboard</p></a></li>
+          <li class="active"><a href="./referrals.html"><i class="now-ui-icons business_chart-bar-32"></i><p>Referrals</p></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="main-panel" id="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-transparent bg-primary navbar-absolute">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <a class="navbar-brand" href="#">Referrals</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Content -->
+      <div class="content">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-category">Referrals</h5>
+                <h4 class="card-title" id="chart-title">Consultations Referrals</h4>
+              </div>
+              <div class="card-body">
+                <!-- Mini Charts Row -->
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="card">
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                          <h6>Gender Referrals</h6>
+                          <button class="btn btn-sm btn-outline-primary analyseAI-btn" data-chart="genderChart">
+                              <i class="now-ui-icons ui-1_zoom-bold"></i> AnalyseAI
+                          </button>
+                      </div>                                        
+                      <div class="card-body">
+                        <div id="genderChart"></div> <!-- ✅ Pie Chart for Gender -->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="card">
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6>Age Referrals</h6>
+                            <button class="btn btn-sm btn-outline-primary analyseAI-btn" data-chart="ageChart">
+                              <i class="now-ui-icons ui-1_zoom-bold"></i> AnalyseAI
+                            </button>
+                        </div>
+                      <div class="card-body">
+                        <div id="ageChart"></div> <!-- ✅ Donut Chart for Age -->
+                      </div>
+                    </div>
+                  </div>                  
+                  <div class="col-md-4">
+                    <div class="card">
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6>Repeat Patients</h6>
+                        <button class="btn btn-sm btn-outline-primary analyseAI-btn" data-chart="repeatPatientChart">
+                          <i class="now-ui-icons ui-1_zoom-bold"></i> AnalyseAI
+                        </button>
+                    </div>                    
+                      <div class="card-body">
+                        <div id="repeatPatientChart"></div> <!-- ✅ Sunburst Chart for Repeat Patients -->
+                      </div>
+                    </div>
+                  </div>                  
+                </div>
+                <div id="referralChart"></div> <!-- Highcharts container -->
+                </div>                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
+  </div>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      fetch('http://127.0.0.1:5000/get-referrals')
+          .then(response => response.json())
+          .then(data => {
+              if (data.error) {
+                  console.error("Error:", data.error);
+                  return;
+              }
+
+              let categoryCounts = {};
+              let drillDownSeries = {};
+
+              // ✅ STEP 1: Build Hierarchical Data Structure (Using Unique Consultation IDs)
+              data.forEach(row => {
+                  const category = row.REFERRAL_CATEGORY || "Unknown";
+                  const sector = row.REFERRAL_SECTOR || "Other";
+                  const type = row.REFERRAL_TYPE || "Other";
+                  const subtype = row.REFERRAL_SUBTYPE || "Other";
+                  const consultationID = row.CONSULTATION_ID;
+
+                  // Ensure Category Exists
+                  if (!categoryCounts[category]) {
+                      categoryCounts[category] = { total: new Set(), sectors: {} };
+                  }
+                  categoryCounts[category].total.add(consultationID);
+
+                  // Ensure Sector Exists Under Category
+                  if (!categoryCounts[category].sectors[sector]) {
+                      categoryCounts[category].sectors[sector] = { total: new Set(), types: {} };
+                  }
+                  categoryCounts[category].sectors[sector].total.add(consultationID);
+
+                  // Ensure Type Exists Under Sector
+                  if (!categoryCounts[category].sectors[sector].types[type]) {
+                      categoryCounts[category].sectors[sector].types[type] = { total: new Set(), subtypes: {} };
+                  }
+                  categoryCounts[category].sectors[sector].types[type].total.add(consultationID);
+
+                  // Ensure Subtype Exists Under Type
+                  if (!categoryCounts[category].sectors[sector].types[type].subtypes[subtype]) {
+                      categoryCounts[category].sectors[sector].types[type].subtypes[subtype] = new Set();
+                  }
+                  categoryCounts[category].sectors[sector].types[type].subtypes[subtype].add(consultationID);
+              });
+
+              // ✅ STEP 2: Format Data for Highcharts
+
+              // Top Level (Referral Category)
+              const chartData = Object.keys(categoryCounts).map(category => ({
+                  name: category,
+                  y: categoryCounts[category].total.size,
+                  drilldown: category
+              }));
+
+              // Drilldown Data
+              Object.keys(categoryCounts).forEach(category => {
+                  let sectorData = [];
+                  
+                  Object.keys(categoryCounts[category].sectors).forEach(sector => {
+                      sectorData.push({
+                          name: sector,
+                          y: categoryCounts[category].sectors[sector].total.size,
+                          drilldown: `${category}-${sector}`
+                      });
+
+                      let typeData = [];
+                      Object.keys(categoryCounts[category].sectors[sector].types).forEach(type => {
+                          typeData.push({
+                              name: type,
+                              y: categoryCounts[category].sectors[sector].types[type].total.size,
+                              drilldown: `${category}-${sector}-${type}`
+                          });
+
+                          let subtypeData = [];
+                          Object.keys(categoryCounts[category].sectors[sector].types[type].subtypes).forEach(subtype => {
+                              subtypeData.push({
+                                  name: subtype,
+                                  y: categoryCounts[category].sectors[sector].types[type].subtypes[subtype].size
+                              });
+                          });
+
+                          drillDownSeries[`${category}-${sector}-${type}`] = {
+                              name: type,
+                              id: `${category}-${sector}-${type}`,
+                              data: subtypeData
+                          };
+                      });
+
+                      drillDownSeries[`${category}-${sector}`] = {
+                          name: sector,
+                          id: `${category}-${sector}`,
+                          data: typeData
+                      };
+                  });
+
+                  drillDownSeries[category] = {
+                      name: category,
+                      id: category,
+                      data: sectorData
+                  };
+              });
+
+              // ✅ STEP 3: Render Highcharts Drilldown Chart
+              Highcharts.chart('referralChart', {
+                  chart: { type: 'column' },
+                  title: { text: 'Referrals' },
+                  xAxis: { type: 'category' },
+                  yAxis: { title: { text: 'Number of Consultations' } },
+                  legend: { enabled: false },
+                  plotOptions: {
+                      series: {
+                          borderWidth: 0,
+                          dataLabels: { enabled: true }
+                      }
+                  },
+                  series: [{
+                      name: "Referral Category",
+                      colorByPoint: true,
+                      data: chartData
+                  }],
+                  drilldown: {
+                      series: Object.values(drillDownSeries)
+                  }
+              });
+
+          })
+          .catch(error => console.error("Fetch error:", error));
+  });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch('http://127.0.0.1:5000/get-referrals')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error("Error:", data.error);
+                    return;
+                }
+    
+                let genderCounts = {};
+                let drillDownSeries = {};
+    
+                // ✅ Build Hierarchical Data Structure (Using Unique Consultation IDs)
+                data.forEach(row => {
+                    const gender = row.GENDER || "Unknown";
+                    const category = row.REFERRAL_CATEGORY || "Unknown";
+                    const sector = row.REFERRAL_SECTOR || "Other";
+                    const type = row.REFERRAL_TYPE || "Other";
+                    const subtype = row.REFERRAL_SUBTYPE || "Other";
+                    const consultationID = row.CONSULTATION_ID;
+    
+                    // ✅ Ensure Gender Exists
+                    if (!genderCounts[gender]) {
+                        genderCounts[gender] = { total: new Set(), categories: {} };
+                    }
+                    genderCounts[gender].total.add(consultationID);
+    
+                    // ✅ Ensure Category Exists Under Gender
+                    if (!genderCounts[gender].categories[category]) {
+                        genderCounts[gender].categories[category] = { total: new Set(), sectors: {} };
+                    }
+                    genderCounts[gender].categories[category].total.add(consultationID);
+    
+                    // ✅ Ensure Sector Exists Under Category
+                    if (!genderCounts[gender].categories[category].sectors[sector]) {
+                        genderCounts[gender].categories[category].sectors[sector] = { total: new Set(), types: {} };
+                    }
+                    genderCounts[gender].categories[category].sectors[sector].total.add(consultationID);
+    
+                    // ✅ Ensure Type Exists Under Sector
+                    if (!genderCounts[gender].categories[category].sectors[sector].types[type]) {
+                        genderCounts[gender].categories[category].sectors[sector].types[type] = { total: new Set(), subtypes: {} };
+                    }
+                    genderCounts[gender].categories[category].sectors[sector].types[type].total.add(consultationID);
+    
+                    // ✅ Ensure Subtype Exists Under Type
+                    if (!genderCounts[gender].categories[category].sectors[sector].types[type].subtypes[subtype]) {
+                        genderCounts[gender].categories[category].sectors[sector].types[type].subtypes[subtype] = new Set();
+                    }
+                    genderCounts[gender].categories[category].sectors[sector].types[type].subtypes[subtype].add(consultationID);
+                });
+    
+                // ✅ Step 2: Format Data for Highcharts Drilldown
+    
+                // Top Level (Gender Distribution)
+                const totalConsultations = Object.values(genderCounts).reduce((sum, g) => sum + g.total.size, 0);
+                const genderData = Object.keys(genderCounts).map(gender => ({
+                    name: gender,
+                    y: genderCounts[gender].total.size,
+                    drilldown: gender
+                }));
+    
+                let drillDownData = [];
+    
+                // Build drill-down series dynamically
+                Object.keys(genderCounts).forEach(gender => {
+                    let categoryData = [];
+                    Object.keys(genderCounts[gender].categories).forEach(category => {
+                        categoryData.push({
+                            name: category,
+                            y: genderCounts[gender].categories[category].total.size,
+                            drilldown: `${gender}-${category}`
+                        });
+    
+                        let sectorData = [];
+                        Object.keys(genderCounts[gender].categories[category].sectors).forEach(sector => {
+                            sectorData.push({
+                                name: sector,
+                                y: genderCounts[gender].categories[category].sectors[sector].total.size,
+                                drilldown: `${gender}-${category}-${sector}`
+                            });
+    
+                            let typeData = [];
+                            Object.keys(genderCounts[gender].categories[category].sectors[sector].types).forEach(type => {
+                                typeData.push({
+                                    name: type,
+                                    y: genderCounts[gender].categories[category].sectors[sector].types[type].total.size,
+                                    drilldown: `${gender}-${category}-${sector}-${type}`
+                                });
+    
+                                let subtypeData = [];
+                                Object.keys(genderCounts[gender].categories[category].sectors[sector].types[type].subtypes).forEach(subtype => {
+                                    subtypeData.push({
+                                        name: subtype,
+                                        y: genderCounts[gender].categories[category].sectors[sector].types[type].subtypes[subtype].size
+                                    });
+                                });
+    
+                                drillDownData.push({
+                                    id: `${gender}-${category}-${sector}-${type}`,
+                                    name: type,
+                                    data: subtypeData
+                                });
+                            });
+    
+                            drillDownData.push({
+                                id: `${gender}-${category}-${sector}`,
+                                name: sector,
+                                data: typeData
+                            });
+                        });
+    
+                        drillDownData.push({
+                            id: `${gender}-${category}`,
+                            name: category,
+                            data: sectorData
+                        });
+                    });
+    
+                    drillDownData.push({
+                        id: gender,
+                        name: gender,
+                        data: categoryData
+                    });
+                });
+    
+                // ✅ Step 3: Render Highcharts Drilldown Pie Chart
+                Highcharts.chart('genderChart', {
+                    chart: { type: 'pie' },
+                    title: { text: 'Gender Distribution' },
+                    subtitle: { text: 'Click on a gender to explore' },
+                    accessibility: {
+                        announceNewData: { enabled: true },
+                        point: { valueSuffix: ' referrals' }
+                    },
+                    tooltip: {
+                        pointFormatter: function () {
+                            let percentage = ((this.y / totalConsultations) * 100).toFixed(1);
+                            return `<b>${this.name}</b>: ${this.y} referrals (${percentage}%)`;
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: { 
+                                enabled: true, // ✅ Keeps slice names visible
+                                format: '{point.name}' // ✅ Shows only the name of the slice
+                            }
+                        }
+                    },
+                    series: [{
+                        name: "Patients",
+                        colorByPoint: true,
+                        data: genderData
+                    }],
+                    drilldown: {
+                        series: drillDownData
+                    }
+                });
+    
+            })
+            .catch(error => console.error("Fetch error:", error));
+    });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          fetch('http://127.0.0.1:5000/get-referrals')
+              .then(response => response.json())
+              .then(data => {
+                  if (data.error) {
+                      console.error("Error:", data.error);
+                      return;
+                  }
+      
+                  let ageCounts = {};
+                  let drillDownSeries = {};
+      
+                  // ✅ Step 1: Build Hierarchical Data Structure (Using Unique Consultation IDs)
+                  data.forEach(row => {
+                      const ageCategory = row.AGE_CATEGORY || "Unknown";
+                      const category = row.REFERRAL_CATEGORY || "Unknown";
+                      const sector = row.REFERRAL_SECTOR || "Other";
+                      const type = row.REFERRAL_TYPE || "Other";
+                      const subtype = row.REFERRAL_SUBTYPE || "Other";
+                      const consultationID = row.CONSULTATION_ID;
+      
+                      // ✅ Ensure Age Category Exists
+                      if (!ageCounts[ageCategory]) {
+                          ageCounts[ageCategory] = { total: new Set(), categories: {} };
+                      }
+                      ageCounts[ageCategory].total.add(consultationID);
+      
+                      // ✅ Ensure Category Exists Under Age
+                      if (!ageCounts[ageCategory].categories[category]) {
+                          ageCounts[ageCategory].categories[category] = { total: new Set(), sectors: {} };
+                      }
+                      ageCounts[ageCategory].categories[category].total.add(consultationID);
+      
+                      // ✅ Ensure Sector Exists Under Category
+                      if (!ageCounts[ageCategory].categories[category].sectors[sector]) {
+                          ageCounts[ageCategory].categories[category].sectors[sector] = { total: new Set(), types: {} };
+                      }
+                      ageCounts[ageCategory].categories[category].sectors[sector].total.add(consultationID);
+      
+                      // ✅ Ensure Type Exists Under Sector
+                      if (!ageCounts[ageCategory].categories[category].sectors[sector].types[type]) {
+                          ageCounts[ageCategory].categories[category].sectors[sector].types[type] = { total: new Set(), subtypes: {} };
+                      }
+                      ageCounts[ageCategory].categories[category].sectors[sector].types[type].total.add(consultationID);
+      
+                      // ✅ Ensure Subtype Exists Under Type
+                      if (!ageCounts[ageCategory].categories[category].sectors[sector].types[type].subtypes[subtype]) {
+                          ageCounts[ageCategory].categories[category].sectors[sector].types[type].subtypes[subtype] = new Set();
+                      }
+                      ageCounts[ageCategory].categories[category].sectors[sector].types[type].subtypes[subtype].add(consultationID);
+                  });
+      
+                  // ✅ Step 2: Format Data for Highcharts Drilldown
+      
+                  // Top Level (Age Distribution)
+                  const totalConsultations = Object.values(ageCounts).reduce((sum, a) => sum + a.total.size, 0);
+                  const ageData = Object.keys(ageCounts).map(ageCategory => ({
+                      name: ageCategory,
+                      y: ageCounts[ageCategory].total.size,
+                      drilldown: ageCategory
+                  }));
+      
+                  let drillDownData = [];
+      
+                  // Build drill-down series dynamically
+                  Object.keys(ageCounts).forEach(ageCategory => {
+                      let categoryData = [];
+                      Object.keys(ageCounts[ageCategory].categories).forEach(category => {
+                          categoryData.push({
+                              name: category,
+                              y: ageCounts[ageCategory].categories[category].total.size,
+                              drilldown: `${ageCategory}-${category}`
+                          });
+      
+                          let sectorData = [];
+                          Object.keys(ageCounts[ageCategory].categories[category].sectors).forEach(sector => {
+                              sectorData.push({
+                                  name: sector,
+                                  y: ageCounts[ageCategory].categories[category].sectors[sector].total.size,
+                                  drilldown: `${ageCategory}-${category}-${sector}`
+                              });
+      
+                              let typeData = [];
+                              Object.keys(ageCounts[ageCategory].categories[category].sectors[sector].types).forEach(type => {
+                                  typeData.push({
+                                      name: type,
+                                      y: ageCounts[ageCategory].categories[category].sectors[sector].types[type].total.size,
+                                      drilldown: `${ageCategory}-${category}-${sector}-${type}`
+                                  });
+      
+                                  let subtypeData = [];
+                                  Object.keys(ageCounts[ageCategory].categories[category].sectors[sector].types[type].subtypes).forEach(subtype => {
+                                      subtypeData.push({
+                                          name: subtype,
+                                          y: ageCounts[ageCategory].categories[category].sectors[sector].types[type].subtypes[subtype].size
+                                      });
+                                  });
+      
+                                  drillDownData.push({
+                                      id: `${ageCategory}-${category}-${sector}-${type}`,
+                                      name: type,
+                                      data: subtypeData
+                                  });
+                              });
+      
+                              drillDownData.push({
+                                  id: `${ageCategory}-${category}-${sector}`,
+                                  name: sector,
+                                  data: typeData
+                              });
+                          });
+      
+                          drillDownData.push({
+                              id: `${ageCategory}-${category}`,
+                              name: category,
+                              data: sectorData
+                          });
+                      });
+      
+                      drillDownData.push({
+                          id: ageCategory,
+                          name: ageCategory,
+                          data: categoryData
+                      });
+                  });
+      
+                  // ✅ Step 3: Render Highcharts Donut Chart
+                  Highcharts.chart('ageChart', {
+                      chart: { type: 'pie' },
+                      title: { text: 'Age Distribution' },
+                      subtitle: { text: 'Click on an age group to explore' },
+                      accessibility: {
+                          announceNewData: { enabled: true },
+                          point: { valueSuffix: ' referrals' }
+                      },
+                      tooltip: {
+                          pointFormatter: function () {
+                              let percentage = ((this.y / totalConsultations) * 100).toFixed(1);
+                              return `<b>${this.name}</b>: ${this.y} referrals (${percentage}%)`;
+                          }
+                      },
+                      plotOptions: {
+                          pie: {
+                              innerSize: '50%', // ✅ Turns the pie chart into a donut chart
+                              allowPointSelect: true,
+                              cursor: 'pointer',
+                              dataLabels: { 
+                                  enabled: true, // ✅ Keeps slice names visible
+                                  format: '{point.name}' // ✅ Shows only the name of the slice
+                              }
+                          }
+                      },
+                      series: [{
+                          name: "Patients",
+                          colorByPoint: true,
+                          data: ageData
+                      }],
+                      drilldown: {
+                          series: drillDownData
+                      }
+                  });
+      
+              })
+              .catch(error => console.error("Fetch error:", error));
+      });
+      </script> 
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('http://127.0.0.1:5000/get-referrals')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error("Error:", data.error);
+                        return;
+                    }
+        
+                    let repeatCounts = { Repeat: { total: new Set(), types: {} }, New: { total: new Set(), types: {} } };
+        
+                    // ✅ Step 1: Build Hierarchical Data Structure
+                    data.forEach(row => {
+                        const isRepeat = row.REPEAT_PATIENT ? "Repeat" : "New";
+                        const type = row.REFERRAL_TYPE || "Other";
+                        const subtype = row.REFERRAL_SUBTYPE || "Other";
+                        const consultationID = row.CONSULTATION_ID;
+        
+                        if (!repeatCounts[isRepeat]) {
+                            repeatCounts[isRepeat] = { total: new Set(), types: {} };
+                        }
+                        repeatCounts[isRepeat].total.add(consultationID);
+        
+                        if (!repeatCounts[isRepeat].types[type]) {
+                            repeatCounts[isRepeat].types[type] = { total: new Set(), subtypes: {} };
+                        }
+                        repeatCounts[isRepeat].types[type].total.add(consultationID);
+        
+                        if (!repeatCounts[isRepeat].types[type].subtypes[subtype]) {
+                            repeatCounts[isRepeat].types[type].subtypes[subtype] = new Set();
+                        }
+                        repeatCounts[isRepeat].types[type].subtypes[subtype].add(consultationID);
+                    });
+        
+                    // ✅ Function to build chart data for any level
+                    function buildChartData(level, parentId = "Root") {
+                        let chartData = [];
+                        
+                        if (level === 1) {
+                            // Add only "Repeat" and "New"
+                            Object.keys(repeatCounts).forEach(repeatStatus => {
+                                chartData.push({
+                                    id: repeatStatus,
+                                    parent: "Root",
+                                    name: repeatStatus,
+                                    value: repeatCounts[repeatStatus].total.size
+                                });
+                            });
+                        } else if (level === 2) {
+                            // Add Referral Types for clicked Repeat/New
+                            Object.keys(repeatCounts[parentId].types).forEach(type => {
+                                chartData.push({
+                                    id: `${parentId}-${type}`,
+                                    parent: parentId,
+                                    name: type,
+                                    value: repeatCounts[parentId].types[type].total.size
+                                });
+                            });
+                        } else if (level === 3) {
+                            // Add Referral Subtypes for clicked Type
+                            const [repeatStatus, type] = parentId.split("-");
+                            Object.keys(repeatCounts[repeatStatus].types[type].subtypes).forEach(subtype => {
+                                chartData.push({
+                                    id: `${parentId}-${subtype}`,
+                                    parent: parentId,
+                                    name: subtype,
+                                    value: repeatCounts[repeatStatus].types[type].subtypes[subtype].size
+                                });
+                            });
+                        }
+                        return chartData;
+                    }
+        
+                    // ✅ Initialize Sunburst with "Repeat" and "New" ONLY
+                    let sunburstData = [
+                        { id: "Root", parent: "", name: "All Patients", visible: false },
+                        ...buildChartData(1) // Initial Level 1 (Repeat/New)
+                    ];
+        
+                    // ✅ Step 3: Render Highcharts Sunburst Chart
+                    let chart = Highcharts.chart('repeatPatientChart', {
+                        chart: { type: 'sunburst' },
+                        title: { text: 'Repeat Patients Breakdown' },
+                        subtitle: { text: 'Click to explore breakdown' },
+                        series: [{
+                          type: "sunburst",
+                          data: sunburstData,
+                          allowDrillToNode: true,
+                          cursor: 'pointer',
+                          dataLabels: {
+                            format: '{point.name}',
+                            rotationMode: 'auto'
+                          },
+                          levels: [
+                            { level: 1, levelIsConstant: false, dataLabels: { filter: { property: 'outerArcLength', operator: '>', value: 64 } } },
+                            { level: 2, colorVariation: { key: 'brightness', to: -0.5 } },
+                            { level: 3, colorVariation: { key: 'brightness', to: -0.75 } }
+                          ]
+                        }],
+                        chart: {
+                          type: 'sunburst'
+                        },
+
+                        tooltip: {
+                            pointFormatter: function () {
+                                return `<b>${this.name}</b>: ${this.value} referrals`;
+                            }
+                        }
+                    });
+        
+                    // ✅ Add click event to dynamically reveal levels
+                    Highcharts.addEvent(chart, 'drilldown', function (e) {
+                        let newLevel = e.point.id.split("-").length + 1; // Determines which level is next
+                        let newData = buildChartData(newLevel, e.point.id);
+                        
+                        if (newData.length > 0) {
+                            chart.series[0].setData([...chart.series[0].options.data, ...newData], true, false, false);
+                            chart.series[0].setRootNode(e.point.id);
+                        }
+                    });
+        
+                })
+                .catch(error => console.error("Fetch error:", error));
+        });
+        </script>
+        <!-- AI Analysis Script -->
+        <script>
+          function animateDots() {
+              let dots = document.getElementById("dots");
+              let count = 0;
+              return setInterval(() => {
+                  count = (count + 1) % 4;
+                  dots.innerText = ".".repeat(count); // Cycles through "", ".", "..", "..."
+              }, 500);
+          }
+
+          let drilldownPath = []; // ✅ Full hierarchy path (e.g., ["Gender: Male", "Category: Cardiology", "Sector: Private"])
+
+          document.addEventListener("DOMContentLoaded", function () {
+              document.querySelectorAll(".analyseAI-btn").forEach(button => {
+                  button.addEventListener("click", function () {
+                      let chartId = this.getAttribute("data-chart");
+                      let chart = Highcharts.charts.find(c => c.renderTo.id === chartId); // Get the corresponding chart
+                      
+                      if (!chart) return;
+
+                      let visibleData = chart.series[0].data.map(point => ({
+                          name: point.name,
+                          value: point.y
+                      }));
+
+                      let drilldownLevel = drilldownPath.length;
+                      let fullPath = drilldownPath.length > 0 ? drilldownPath.join(" → ") : "Overall data";
+
+                      let context = drilldownLevel === 0 ? `Overall referral distribution`
+                                  : drilldownLevel === 1 ? `Breakdown of referrals into categories`
+                                  : drilldownLevel === 2 ? `Breakdown of referrals into sectors`
+                                  : drilldownLevel === 3 ? `Breakdown of referrals into types`
+                                  : `Breakdown of referrals into subtypes`;
+
+                      let analysisRequest = {
+                        context: `Analyse the referrals dataset (clincal referrals referring to services outside of our operations) for consultations completed by doctors at a Dis-Chem clinic through a telemedicine service offered by Healthforce. Our doctors are connected to via a computer to the nurse onsite and the patient for the consultation.
+                                  The dataset represents ${context}. 
+                                  The hierarchy path followed to reach this level is: ${fullPath}. Consider this path in your analysis and refer to it in a natural manner.
+                                  Identify key and actionable patterns and insights related to these referrals. Use all the information to tell a story`,
+                          data: visibleData
+                      };
+
+                      // Show modal while AI generates insights
+                      $('#aiAnalysisModal').modal('show');
+                      document.getElementById("insightText").innerText = "Generating insights";
+                      let dotsInterval = animateDots();
+
+                      fetch("http://127.0.0.1:5000/analyse-ai", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json"
+                          },
+                          body: JSON.stringify({ context: analysisRequest.context, data: analysisRequest.data })
+                        })
+                      .then(response => response.json())
+                      .then(data => {
+                        clearInterval(dotsInterval); // Stop animation
+                        document.getElementById("dots").innerText = ""; // Remove dots
+
+                        let aiResponse = data.choices?.[0]?.message?.content?.trim() || "No insights available.";
+                        document.getElementById("aiAnalysisText").innerText = aiResponse;
+
+                      })
+                      .catch(error => {
+                        clearInterval(dotsInterval);
+                        document.getElementById("dots").innerText = "";
+                        console.error("AI Analysis Error:", error);
+                        document.getElementById("aiAnalysisText").innerText = "Error generating insights.";
+                      });
+                  });
+              });
+              // ✅ Track full drilldown path
+              Highcharts.addEvent(Highcharts.Chart, 'drilldown', function (e) {
+                  if (e.point && e.point.name) {
+                      drilldownPath.push(e.point.name); // ✅ Store full path
+                  }
+              });
+
+              // ✅ Track when user drills up (removes last level)
+              Highcharts.addEvent(Highcharts.Chart, 'drillup', function () {
+                  drilldownPath.pop();
+              });
+          });
+          </script>
+                      
+          <!-- AI Analysis Modal -->
+          <!-- AI Analysis Modal -->
+          <div id="aiAnalysisModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">AI Insights</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <!-- ✅ Scrollable Body -->
+                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                        <div id="aiAnalysisText" style="white-space: pre-wrap; word-wrap: break-word; font-size: 16px;">
+                            <span id="insightText">Generating insights</span><span id="dots"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>
+</html>
