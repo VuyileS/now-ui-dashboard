@@ -70,6 +70,102 @@
       display: flex;
       flex-direction: column;
     }
+    /* Chatbot Widget */
+    #chatWidget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 420px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+    }
+    #chatToggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      background: #17a2b8;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #chatHeader {
+      background: #17a2b8;
+      color: white;
+      padding: 12px;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      font-weight: bold;
+    }
+    #chatMessages {
+      height: 240px;
+      overflow-y: auto;
+      padding: 10px;
+      font-size: 14px;
+    }
+    #chatInputWrapper {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+    #chatInputWrapper input {
+      flex-grow: 1;
+      border: none;
+      padding: 10px;
+    }
+    #chatInputWrapper button {
+      border: none;
+      background: #17a2b8;
+      color: white;
+      padding: 10px 16px;
+    }
+    .chat-user {
+      text-align: right;
+      margin: 4px 0;
+    }
+    .chat-ai {
+      text-align: left;
+      margin: 4px 0;
+    }
+    .chat-user, .chat-ai {
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      border-radius: 16px;
+      max-width: 80%;
+      display: inline-block;
+      clear: both;
+    }
+
+    .chat-user {
+      background-color: #dcf8c6;
+      float: right;
+    }
+
+    .chat-ai {
+      background-color: #f1f0f0;
+      float: left;
+    }
+    #voiceBtn {
+      background: #17a2b8;
+      color: white;
+      border: none;
+      padding: 0 14px;
+      font-size: 16px;
+    }
+    #voiceBtn:active {
+      background: #138496;
+    }
+
   </style>  
 </head>
 
@@ -134,7 +230,7 @@
       <footer class="footer">
         <div class="container-fluid">
           <div class="copyright" id="copyright">
-            &copy; <script>document.write(new Date().getFullYear())</script>, Designed by Invision. Coded by Creative Tim.
+            &copy; <script>document.write(new Date().getFullYear())</script>, Designed by Healthforce. Coded by Vuyile Sixaba.
           </div>
         </div>
       </footer>
@@ -160,31 +256,47 @@
 
 
   <!-- Add a loading spinner and a PDF button in your modal -->
-<div class="modal fade" id="recommendationModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Clinic Product Recommendations</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div id="loadingSpinner" class="text-center my-4" style="display: none;">
-          <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
-          <p class="mt-2">Fetching recommendations...</p>
+  <div class="modal fade" id="recommendationModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Clinic Product Recommendations</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span>&times;</span>
+          </button>
         </div>
-        <div id="recommendationContent" class="px-2" style="max-height: 60vh; overflow-y: auto;"></div>
-      </div>      
-      <div class="modal-footer">
-        <button class="btn btn-primary" id="savePdfBtn">Save as PDF</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <div class="modal-body">
+          <div id="loadingSpinner" class="text-center my-4" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <p class="mt-2">Fetching recommendations...</p>
+          </div>
+          <div id="recommendationContent" class="px-2" style="max-height: 60vh; overflow-y: auto;"></div>
+        </div>      
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="savePdfBtn">Save as PDF</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+    <!-- Chat Toggle Button -->
+    <button id="chatToggle"><i class="fas fa-comment"></i></button>
+
+    <!-- Chat Widget -->
+    <div id="chatWidget">
+      <div id="chatHeader">AI Symptom Chat
+        <button id="chatCloseBtn" style="float: right; background: transparent; border: none; color: white; font-size: 18px;">&times;</button>
+      </div>
+      <div id="chatMessages"></div>
+      <div id="chatInputWrapper">
+        <input type="text" id="chatInput" placeholder="Let's chat about your symptoms...">
+        <button id="voiceBtn" title="Speak"><i class="fas fa-microphone"></i></button>
+        <button onclick="sendChat()">Send</button>
+      </div>
+    </div>
 
 
   <script src="../assets/js/core/jquery.min.js"></script>
@@ -462,6 +574,109 @@
       });
     });
   </script>  
+  <script>
+    const chatToggle = document.getElementById("chatToggle");
+    const chatCloseBtn = document.getElementById("chatCloseBtn");
+    const chatWidget = document.getElementById("chatWidget");
+    const chatMessages = document.getElementById("chatMessages");
+    const chatInput = document.getElementById("chatInput");
+    const voiceBtn = document.getElementById("voiceBtn");
+  
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("symptomHistory");
+      if (saved) {
+        chatMessages.innerHTML = saved;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    });
+  
+    chatToggle.addEventListener("click", () => {
+      chatWidget.style.display = "flex";
+    });
+  
+    chatCloseBtn.addEventListener("click", () => {
+      chatWidget.style.display = "none";
+    });
+  
+    chatInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendChat();
+    });
+  
+    function sendChat() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+  
+      appendMessage("chat-user", message);
+      chatInput.value = "";
+      showTyping();
+  
+      fetch("http://127.0.0.1:5001/symptom-checker", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      })
+        .then(res => res.json())
+        .then(data => {
+          removeTyping();
+          appendMessage("chat-ai", data.response || "Sorry, I don’t know how to respond to that.");
+        })
+        .catch(() => {
+          removeTyping();
+          appendMessage("chat-ai", "Oops! Something went wrong.");
+        });
+    }
+  
+    function appendMessage(className, message) {
+      const msg = document.createElement("div");
+      msg.className = className;
+      msg.innerText = message;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      saveChat();
+    }
+  
+    function showTyping() {
+      const typing = document.createElement("div");
+      typing.className = "chat-ai typing-indicator";
+      typing.innerText = "AI is typing...";
+      chatMessages.appendChild(typing);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  
+    function removeTyping() {
+      const typing = chatMessages.querySelector(".typing-indicator");
+      if (typing) typing.remove();
+    }
+  
+    function saveChat() {
+      localStorage.setItem("symptomHistory", chatMessages.innerHTML);
+    }
+  
+    // 🎤 Voice input support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.lang = 'en-US';
+  
+      voiceBtn.addEventListener("click", () => {
+        recognition.start();
+      });
+  
+      recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript;
+        chatInput.value = transcript;
+        sendChat();
+      };
+  
+      recognition.onerror = function (event) {
+        console.error("Voice recognition error", event);
+      };
+    } else {
+      voiceBtn.disabled = true;
+      voiceBtn.title = "Voice input not supported on this browser";
+    }
+  </script>    
   </body>
 
 </html>

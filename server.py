@@ -6,6 +6,9 @@ import os
 import json
 import numpy as np
 import faiss
+from openai import OpenAI
+import os
+import json
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -475,6 +478,23 @@ def get_product_suggestions():
     except Exception as e:
         print("Error in /get-product-suggestions:", str(e))
         return jsonify({"error": str(e)}), 500
+
+@app.route("/analyse-ai", methods=["POST"])
+def analyse_ai():
+
+    data = request.json
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+    prompt = f"{data['context']} {json.dumps(data['data'])}"
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            { "role": "system", "content": "You are a data analyst at a healthcare clinic. Provide actionable insights." },
+            { "role": "user", "content": prompt }
+        ],
+        max_tokens=500
+    )
+    return jsonify({ "response": response.choices[0].message.content.strip() })
 
 
 if __name__ == '__main__':

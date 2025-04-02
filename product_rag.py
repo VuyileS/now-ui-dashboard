@@ -82,5 +82,26 @@ def get_product_suggestions():
         "products": grouped_products
     })
 
+@app.route('/symptom-checker', methods=['POST'])
+def symptom_checker():
+    data = request.get_json()
+    user_message = data.get("message")
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful and knowledgeable medical assistant. Provide accurate, clear, and safe advice based on the symptoms described by the user. Be friendly and professional. Be empathetic and humane in your replies."},
+                {"role": "user", "content": user_message}
+            ],
+            temperature=0.7,
+            max_tokens=300
+        )
+        ai_reply = response.choices[0].message.content.strip()
+        return jsonify({"response": ai_reply})
+    except Exception as e:
+        print("AI error in symptom-checker:", e)
+        return jsonify({"response": "Sorry, something went wrong while trying to help."})
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
