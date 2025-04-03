@@ -1,5 +1,10 @@
+flask
+flask-cors
+gunicorn
 openai
 requests
 beautifulsoup4
 python-dotenv
 faiss-cpu
+snowflake-connector-python
+pandas

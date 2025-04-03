@@ -1,0 +1,5 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/now-ui-dashboard/server-service', '-f', 'Dockerfile.server', '.']
+images:
+  - 'gcr.io/now-ui-dashboard/server-service'

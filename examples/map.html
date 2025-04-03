@@ -5,8 +5,9 @@
   <meta charset="utf-8" />
   <title>Maps | Now UI Dashboard</title>
   <meta content='width=device-width, initial-scale=1.0, user-scalable=0' name='viewport' />
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/now-ui-dashboard.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/dischem-theme.css') }}" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" crossorigin="anonymous">
   <style>
@@ -171,20 +172,20 @@
 
 <body>
   <div class="wrapper">
-    <div class="sidebar" data-color="orange">
+    <div class="sidebar">
       <div class="logo">
         <a href="#" class="simple-text logo-normal">HF Dashboard</a>
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
           <li>
-            <a href="./dashboard.html">
+            <a href="/">
               <i class="now-ui-icons design_app"></i>
               <p>Dashboard</p>
             </a>
           </li>
           <li class="active">
-            <a href="./map.html">
+            <a href="/map">
               <i class="now-ui-icons location_map-big"></i>
               <p>Maps</p>
             </a>
@@ -299,16 +300,16 @@
     </div>
 
 
-  <script src="../assets/js/core/jquery.min.js"></script>
-  <script src="../assets/js/core/bootstrap.min.js"></script>
-  <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+  <script src="{{ url_for('static', filename='js/core/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/core/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/plugins/perfect-scrollbar.jquery.min.js') }}"></script>    
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
     let map;
     let clinicMarkers = [];
   
-    fetch("http://127.0.0.1:5000/get-map-key")
+    fetch("https://server-service-956338125937.africa-south1.run.app/get-map-key")
       .then(res => res.json())
       .then(data => {
         const script = document.createElement("script");
@@ -324,7 +325,7 @@
         center: { lat: -28.4793, lng: 24.6727 }
       });
   
-      fetch("http://127.0.0.1:5000/get-province-icd10")
+      fetch("https://server-service-956338125937.africa-south1.run.app/get-province-icd10")
   .then(res => res.json())
   .then(provinces => {
     if (!Array.isArray(provinces)) {
@@ -417,7 +418,7 @@
           fillOpacity: 0.3,
           map: map,
           center: location,
-          radius: 5000 // radius in meters (5km)
+          radius: 30000 // radius in meters (5km)
         });
 
         // Optional: Add marker at user's location
@@ -436,7 +437,7 @@
       clinicMarkers.forEach(marker => marker.setMap(null));
       clinicMarkers = [];
   
-      fetch(`http://127.0.0.1:5000/get-clinics-by-province?province=${encodeURIComponent(provinceName)}`)
+      fetch(`https://server-service-956338125937.africa-south1.run.app/get-clinics-by-province?province=${encodeURIComponent(provinceName)}`)
         .then(res => res.json())
         .then(clinics => {
           clinics.forEach(clinic => {
@@ -518,7 +519,7 @@
       $("#recommendationModal").modal("show");
   
       // Fetch recommendations
-      fetch("http://127.0.0.1:5001/get-product-suggestions", {
+      fetch("https://product-rag-service-956338125937.africa-south1.run.app/get-product-suggestions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -610,7 +611,7 @@
       chatInput.value = "";
       showTyping();
   
-      fetch("http://127.0.0.1:5001/symptom-checker", {
+      fetch("https://product-rag-service-956338125937.africa-south1.run.app/symptom-checker", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message })

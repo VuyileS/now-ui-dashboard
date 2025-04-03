@@ -4,8 +4,9 @@
   <meta charset="utf-8" />
   <title>Referrals | HF Dashboard</title>
   <meta content='width=device-width, initial-scale=1.0, user-scalable=0' name='viewport' />
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/now-ui-dashboard.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/dischem-theme.css') }}" rel="stylesheet" />
 
   <!-- Highcharts Library -->
   <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -60,12 +61,12 @@
   <div class="wrapper">
     <div class="sidebar" data-color="orange">
       <div class="logo">
-        <a href="./dashboard.html" class="simple-text logo-normal">HF Dashboard</a>
+        <a href="/" class="simple-text logo-normal">HF Dashboard</a>
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
-          <li><a href="./dashboard.html"><i class="now-ui-icons design_app"></i><p>Dashboard</p></a></li>
-          <li class="active"><a href="./referrals.html"><i class="now-ui-icons business_chart-bar-32"></i><p>Referrals</p></a></li>
+          <li><a href="/"><i class="now-ui-icons design_app"></i><p>Dashboard</p></a></li>
+          <li class="active"><a href="/referrals"><i class="now-ui-icons business_chart-bar-32"></i><p>Referrals</p></a></li>
         </ul>
       </div>
     </div>
@@ -144,7 +145,7 @@
 
   <script>
   document.addEventListener("DOMContentLoaded", function () {
-      fetch('http://127.0.0.1:5000/get-referrals')
+      fetch('https://server-service-956338125937.africa-south1.run.app/get-referrals')
           .then(response => response.json())
           .then(data => {
               if (data.error) {
@@ -274,7 +275,7 @@
   </script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-        fetch('http://127.0.0.1:5000/get-referrals')
+        fetch('https://server-service-956338125937.africa-south1.run.app/get-referrals')
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -440,7 +441,7 @@
     </script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-          fetch('http://127.0.0.1:5000/get-referrals')
+          fetch('https://server-service-956338125937.africa-south1.run.app/get-referrals')
               .then(response => response.json())
               .then(data => {
                   if (data.error) {
@@ -607,7 +608,7 @@
       </script> 
       <script>
         document.addEventListener("DOMContentLoaded", function () {
-            fetch('http://127.0.0.1:5000/get-referrals')
+            fetch('https://server-service-956338125937.africa-south1.run.app/get-referrals')
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
@@ -779,7 +780,7 @@
                       document.getElementById("insightText").innerText = "Generating insights";
                       let dotsInterval = animateDots();
 
-                      fetch("http://127.0.0.1:5000/analyse-ai", {
+                      fetch("https://server-service-956338125937.africa-south1.run.app/analyse-ai", {
                           method: "POST",
                           headers: {
                             "Content-Type": "application/json"

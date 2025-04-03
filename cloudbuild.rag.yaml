@@ -1,0 +1,5 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/now-ui-dashboard/product-rag-service', '-f', 'Dockerfile.rag', '.']
+images:
+  - 'gcr.io/now-ui-dashboard/product-rag-service'

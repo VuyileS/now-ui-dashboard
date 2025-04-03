@@ -1,0 +1,70 @@
+/* Sidebar background */
+/* Strong override for sidebar background */
+.sidebar {
+    background-color: #008000 !important;   /* Dis-Chem green */
+    background-image: none !important;      /* Removes the dark gradient */
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    color: #ffffff !important;
+  }  
+  /* Active and hover sidebar links */
+  .sidebar .nav li.active > a,
+  .sidebar .nav li > a:hover {
+    background-color: #78BE20 !important; /* Dis-Chem light green */
+    color: #ffffff !important;
+  }
+
+  .sidebar .logo, .sidebar-wrapper {
+    color: #ffffff !important;
+  }
+  .sidebar::after {
+    content: none !important;
+    background: none !important;
+  }
+  
+  .navbar.bg-primary {
+    background-color: #008000 !important; /* Dis-Chem green */
+  }
+  
+  /* Navbar */
+  .navbar {
+    background-color: #78BE20 !important;
+  }
+  
+  .navbar .navbar-nav .nav-link {
+    color: #ffffff !important;
+  }
+  
+  /* Primary buttons */
+  .btn-primary {
+    background-color: #78BE20 !important;
+    border-color: #78BE20 !important;
+  }
+  
+  .btn-primary:hover {
+    background-color: #67A81C !important;
+    border-color: #67A81C !important;
+  }
+  
+  /* Chart / panel background */
+  .panel-header,
+  .card-chart {
+    background: #008000 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Cards */
+  .card {
+    background-color: #ffffff !important;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Text */
+  body,
+  .card-title,
+  .card-category {
+    color: #333333 !important;
+  }
+  

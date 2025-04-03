@@ -72,7 +72,7 @@
       }
 
       // ✅ Fetch Data from Server
-      fetch('http://127.0.0.1:5000/get-medication-refills')
+      fetch('https://server-service-956338125937.africa-south1.run.app/get-medication-refills')
           .then(response => response.json())
           .then(data => {
               if (!data || data.length === 0) {

@@ -1,0 +1,6 @@
+python server.py
+python3 -m http.server 8080  
+python product_rag.py
+https://server-service-956338125937.africa-south1.run.app
+https://product-rag-service-956338125937.africa-south1.run.app
+google_api_key-AIzaSyBDMGO4hHjDQXv8ubj5uGU8oosBqYnIapo

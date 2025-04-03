@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-app = Flask(__name__, template_folder="examples")  # ✅ Ensures Flask serves HTML from /examples
+app = Flask(__name__, template_folder="examples", static_folder="assets")
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 @app.after_request
@@ -496,6 +496,38 @@ def analyse_ai():
     )
     return jsonify({ "response": response.choices[0].message.content.strip() })
 
+@app.route('/')
+def home():
+    return render_template('dashboard.html')
+
+@app.route('/referrals')
+def referrals_page():
+    return render_template('referrals.html')
+
+@app.route('/map')
+def map_page():
+    return render_template('map.html')
+
+@app.route('/disforce')
+def disforce_page():
+    return render_template('disforce.html')
+
+@app.route('/medication_timeline')
+def meds_page():
+    return render_template('medication_timeline.html')
+
+@app.route('/icons')
+def icons_page():
+    return render_template('icons.html')
+
+@app.route('/notifications')
+def notifications_page():
+    return render_template('notifications.html')
+
+@app.route('/user')
+def user_page():
+    return render_template('user.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
